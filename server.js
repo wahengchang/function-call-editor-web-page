@@ -1,7 +1,11 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const port = 8000;
+const port = process.env.PORT || 8000;
+
+// HTTP request logger
+const morgan = require('morgan');
+app.use(morgan('dev'));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
@@ -11,9 +15,6 @@ app.use(express.json());
 //     res.setHeader('Content-Type', 'application/javascript');
 //     next();
 // });
-
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
 
 // --- /apis/function-call endpoint ---
 const axios = require('axios');
@@ -56,7 +57,9 @@ app.post('/apis/function-call', async (req, res) => {
     }
 });
 
-// Handle Vue Router history mode - only serve index.html for non-file requests
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('*', (req, res, next) => {
     // If the request has a file extension, skip to static middleware
     if (path.extname(req.path)) {
